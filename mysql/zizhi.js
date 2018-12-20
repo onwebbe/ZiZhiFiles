@@ -1,6 +1,10 @@
 var mysql      = require('mysql');
 
 function MySQLZiZhi(){
+    this.isConnected = false;
+    this.createConnection();
+}
+MySQLZiZhi.prototype.createConnection = function () {
     var self = this;
     this.connection = mysql.createConnection({
         host     : 'localhost',
@@ -9,20 +13,22 @@ function MySQLZiZhi(){
         database : 'zizhifiles'
       });
     this.connection.connect();
-      
+    this.isConnected = true;
 }
-MySQLZiZhi.prototype.closeConnection = function () {
+MySQLZiZhi.prototype.closeConnection = function (callback) {
     this.connection.end();
+    this.isConnected = false;
 }
-MySQLZiZhi.prototype.queryCompanyInfo = function (callback, fields, values, isOr) {
-    if (fields.length !== values.length) {
-        console.log('queryCompanyInfo Error: values and fields count should be the same');
-        callback(1, 'queryCompanyInfo Error: values and fields count should be the same');
+MySQLZiZhi.prototype.queryCompanyInfo = function (callback, companyInfo, isOr) {
+    if (!companyInfo) {
+        console.log('queryCompanyInfo Error: companyInfo should not be null');
+        callback(1, 'queryCompanyInfo Error: companyInfo should not be null');
         return;
     }
     let queryString = 'SELECT * from companyinfo where';
-    for ( let i = 0; i < fields.length; i++ ) {
-        let field = fields[i];
+    let queryParams = [];
+    let i = 0;
+    for (let field in companyInfo) {
         if ( i === 0 ) {
             queryString += ' ' + field + '= ?';
         } else {
@@ -33,8 +39,10 @@ MySQLZiZhi.prototype.queryCompanyInfo = function (callback, fields, values, isOr
             }
             
         }
+        queryParams.push(companyInfo[field]);
+        i++;
     }
-    let queryParams = values;
+    
     this.connection.query(queryString, queryParams, function (error, results, fields) {
         if (error) {
             let errorMessage = 'queryCompanyInfo Error:' + error.message + ':' + queryString + ':' + queryParams.join(',');
@@ -97,10 +105,10 @@ MySQLZiZhi.prototype.insertCompanyInfo = function (callback, companyinfo) {
             });
         } else {
             let errorMessage = 'insertCompanyInfo Error: Could not insert the company with same name or code';
-                    console.log(errorMessage);
-                    callback(1, errorMessage);
+            console.log(errorMessage);
+            callback(1, errorMessage);
         }
-    }, ['companycode', 'companyname'], [companycode, companyname], true);
+    }, {'companycode': companycode, 'companyname': companyname}, true);
 }
 MySQLZiZhi.prototype.updateCompanyInfo = function(callback, query, companyinfo) {
     if (!query) {
@@ -108,12 +116,6 @@ MySQLZiZhi.prototype.updateCompanyInfo = function(callback, query, companyinfo) 
         console.log('updateCompanyInfo error: query data could not be null');
         return;
     }
-    if (!query.fields && !query.values && query.fields.length != query.values.length) {
-        callback(1, 'updateCompanyInfo error: query fields or values should not be null and must be the same count');
-        console.log('updateCompanyInfo error: query fields or values should not be null and must be the same count');
-        return;
-    }
-    
     if (!companyinfo) {
         callback(1, 'updateCompanyInfo error: update data could not be null');
         console.log('updateCompanyInfo error: update data could not be null');
@@ -143,36 +145,54 @@ MySQLZiZhi.prototype.updateCompanyInfo = function(callback, query, companyinfo) 
     }
 
     let queryString = ' WHERE ';
-    for ( let i = 0; i < query.fields.length; i++ ) {
-        let field = query.fields[i];
-        let value = query.values[i];
+    let i = 0;
+    for (let field in query) {
         if ( i === 0 ) {
             queryString += ' ' + field + '= ?';
         } else {
-            queryString += ' AND ' + field + '= ?';
+            if (isOr) {
+                queryString += ' OR ' + field + '= ?';
+            } else {
+                queryString += ' AND ' + field + '= ?';
+            }
+            
         }
-        paramters.push(value);
+        paramters.push(query[field]);
+        i++;
     }
 
     let updateString = 'update companyinfo ' + setString + queryString;
-    console.log(updateString);
+    this.connection.query(updateString, paramters, function (error, results, fields) {
+        if (error) {
+            let errorMessage = 'updateCompanyInfo Error:' + error.message;
+            console.log(errorMessage);
+            callback(1, errorMessage);
+        }
+        callback(0, results);
+    });
 }
 var test = new MySQLZiZhi();
-// test.insertCompanyInfo(function (code, result) {
+// test.queryCompanyInfo(function (code, result) {
+//     console.log(result);
 //     test.closeConnection();
 // }, {
 //     'companycode': '1231',
-//     'companyname': '这是个测试公司1',
+//     'companyname': '这是个测试公司'
+// }, true);
+
+// test.insertCompanyInfo(function (code, result) {
+//     test.closeConnection();
+// }, {
+//     'companycode': '123',
+//     'companyname': '这是个测试公司',
 //     'companylocation': '上海',
 //     'companycategory': ''
 // })
 
 test.updateCompanyInfo(function () {
-
-}, {fields:['companycode', 'companyname'], values:['123', '111']},
+    test.closeConnection();
+}, {'companycode': '123'},
     {
-        companylocation: '111111',
-        companyname: '123',
-        companyaaa: 'abc'
+        'tianyanchaurl': '111111'
     }
 );
