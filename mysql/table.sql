@@ -12,7 +12,6 @@ create table companyinfo(
 );
 create table zizhiinfo(
     zizhiid INTEGER primary key AUTO_INCREMENT,
-    companyid INTEGER not null,
     zizhiname varchar(180),
     zizhilevel varchar(60),
     zizhiscope VARCHAR(300),

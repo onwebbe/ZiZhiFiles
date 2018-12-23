@@ -1,10 +1,18 @@
+'use strict';
+
 const mysql      = require('mysql');
 class MySQLCompanyZiZhi {
   constructor() {
+    this.activeTransactionCount = 0;
     this.createConnection();
   }
   createConnection() {
     var self = this;
+    try {
+      self.connection.end();
+    } catch(e) {
+
+    }
     this.connection = mysql.createConnection({
         host     : 'localhost',
         user     : 'root',
@@ -14,11 +22,39 @@ class MySQLCompanyZiZhi {
     this.connection.connect();
     this.isConnected = true;
   }
-  closeConnection (callback) {
-      this.connection.end();
-      this.isConnected = false;
+  closeConnection(callback) {
+    var self = this;
+    if (self._activeTransactionTimer == null) {
+      this._activeTransactionTimer = setInterval(() => {
+        if (self.activeTransactionCount == 0) {
+          self.connection.end();
+          self.connection.destroy();
+          self.isConnected = false;
+          console.log('---------------END-----------------');
+          clearInterval(self._activeTransactionTimer);
+          self._activeTransactionTimer = null;
+        }
+      }, 100);
+    }
+  }
+  startTransaction() {
+    this.activeTransactionCount ++;
+    if (!this.isConnected) {
+      this.createConnection();
+    }
+  }
+  endTransaction() {
+    this.activeTransactionCount --;
+  }
+  handleDBError(reject, msg) {
+    this.endTransaction();
+    console.log(msg);
+    reject(msg);
   }
   _isDataInList(data, list) {
+    if (data == null || list == null) {
+      return false;
+    }
     for (let i = 0; i < list.length; i++) {
       if (data === list[i]) {
         return true;
@@ -26,23 +62,34 @@ class MySQLCompanyZiZhi {
     }
     return false;
   }
-  async insertDB(tablename, insertData, excludeFields, checkUniqueFields) {
+  insertDB(tablename, insertData, excludeFields, checkUniqueFields) {
     var self = this;
+    this.startTransaction();
     return new Promise(async function(resolve, reject) {
-      var dupCheckData = {};
-      for (let i = 0; i < checkUniqueFields.length; i++) {
-        let fieldName = checkUniqueFields[i];
-        let fieldValue = insertData[fieldName];
-        dupCheckData[fieldName] = fieldValue;
+      if (!tablename) {
+        self.handleDBError(reject, 'queryDB Error: table name is mandatory');
       }
-      var checkDuplicateResult = await self.queryDB(tablename, dupCheckData, true);
+      if (!insertData) {
+        self.handleDBError(reject, 'queryDB Error: insert data field is mandatory');
+      }
+
+      let checkDuplicateResult = []; // default, no need to check the duplicated data or not
+      if (checkUniqueFields != null && checkUniqueFields.length > 0) {
+        var dupCheckData = {};
+        for (let i = 0; i < checkUniqueFields.length; i++) {
+          let fieldName = checkUniqueFields[i];
+          let fieldValue = insertData[fieldName];
+          dupCheckData[fieldName] = fieldValue;
+        }
+        checkDuplicateResult = await self.queryDB(tablename, dupCheckData, false);
+      }
       if (checkDuplicateResult.length === 0) {
         let queryParams = [];
         let queryString = 'insert into ' + tablename + ' (';
         let valuesQueryString = '';
         let i = 0;
         for (let infofield in insertData) {
-          if (self._isDataInList(infofield, excludeFields)) { // company id is system generated auto increase field, could not manually assign the value
+          if (!self._isDataInList(infofield, excludeFields)) { // company id is system generated auto increase field, could not manually assign the value
             if ( i === 0 ) {
               queryString += infofield;
               valuesQueryString += '?';
@@ -58,28 +105,29 @@ class MySQLCompanyZiZhi {
         self.connection.query(queryString, queryParams, function (error, results, fields) {
           if (error) {
               let errorMessage = 'insertDB Error:' + error.message;
-              console.log(errorMessage);
-              reject(errorMessage);
+              self.handleDBError(reject, errorMessage);
           }
-          resolve(results);
+          insertData['primarykey'] = results.insertId;
+          self.endTransaction();
+          resolve(insertData);
         });
       } else {
-        let errorMessage = 'insertDB Error: duplicated with data:' + dupCheckData;
-        console.log(errorMessage);
-        reject(errorMessage);
+        let errorMessage = 'insertDB Error: duplicated with data:' + JSON.stringify(dupCheckData, null, 2);
+        self.handleDBError(reject, errorMessage);
       }
     });
   }
-  async queryDB(tablename, queryData, isOr) {
+  queryDB(tablename, queryData, isOr) {
     var self = this;
+    this.startTransaction();
     return new Promise(function(resolve, reject) {
-        if (!queryData) {
-            console.log('queryDB Error: queryData should not be null');
-            reject('queryDB Error: queryData should not be null');
-            return;
-        }
-        let queryString = 'SELECT * from ' + tablename + ' where';
-        let queryParams = [];
+      if (!tablename) {
+        self.handleDBError(reject, 'queryDB Error: table name is mandatory');
+      }
+      let queryString = 'SELECT * from ' + tablename + ' ';
+      let queryParams = [];
+      if (queryData != null) {
+        queryString += ' WHERE ';
         let i = 0;
         for (let field in queryData) {
             if ( i === 0 ) {
@@ -95,19 +143,76 @@ class MySQLCompanyZiZhi {
             queryParams.push(queryData[field]);
             i++;
         }
-        
-        self.connection.query(queryString, queryParams, function (error, results, fields) {
-            if (error) {
-                let errorMessage = 'queryDB Error:' + error.message + ':' + queryString + ':' + queryParams.join(',');
-                console.log(errorMessage);
-                reject(errorMessage);
+      }
+      
+      self.connection.query(queryString, queryParams, function (error, results, fields) {
+          if (error) {
+              let errorMessage = 'queryDB Error:' + error.message + ':' + queryString + ':' + queryParams.join(',');
+              self.handleDBError(reject, errorMessage);
+          }
+          self.endTransaction();
+          resolve(results);
+      });
+    });
+  }
+
+  updateDB(tablename, queryData, updateData, excludeFields) {
+    var self = this;
+    this.startTransaction();
+    return new Promise(function(resolve, reject) {
+      if (!tablename) {
+        self.handleDBError(reject, 'updateDB Error: table name is mandatory');
+      }
+      if (!queryData) {
+        self.handleDBError(reject, 'updateDB Error: query Data is mandatory');
+      }
+      let paramters = [];
+      let setString = ' SET ';
+      let fieldList = [];
+      let valueList = [];
+      let i = 0;
+      for ( let infofield in updateData) {
+          if (!self._isDataInList(infofield, excludeFields)) {
+            if ( i === 0 ) {
+              setString += ' ' + infofield + '= ?';
+            } else {
+              setString += ', ' + infofield + '= ?';
             }
-            resolve(results);
-        });
+            paramters.push(updateData[infofield]);
+          }
+          i++;
+      }
+      let queryString = ' WHERE ';
+      i = 0;
+      for (let field in queryData) {
+          if ( i === 0 ) {
+              queryString += ' ' + field + '= ?';
+          } else {
+              if (isOr) {
+                  queryString += ' OR ' + field + '= ?';
+              } else {
+                  queryString += ' AND ' + field + '= ?';
+              }
+              
+          }
+          paramters.push(queryData[field]);
+          i++;
+      }
+  
+      let updateString = 'update ' + tablename + ' ' + setString + queryString;
+      self.connection.query(updateString, paramters, function (error, results, fields) {
+          if (error) {
+              let errorMessage = 'updateDB Error:' + error.message;
+              self.handleDBError(reject, errorMessage);
+          }
+          self.endTransaction();
+          resolve(results);
+      });
     });
   }
 }
-
+exports.default = MySQLCompanyZiZhi;
+module.exports = exports['default'];
 var t = new MySQLCompanyZiZhi();
 // try {
 //   t.queryDB('companyinfo', {'companycode': '123'}, true).then((res)=>{
@@ -123,18 +228,36 @@ var t = new MySQLCompanyZiZhi();
 try {
   t.insertDB('companyinfo', {
         'companyid': 111,
-        'companycode': '1232x',
-        'companyname': '这是个测试公司2x',
+        'companycode': '1232x123x',
+        'companyname': '这是个测试公司2123xx',
         'companylocation': '上海',
         'companycategory': ''
     }, ['companyid'], ['companycode', 'companyname']).then((res)=>{
     console.log(res);
     t.closeConnection();
   }).catch((error) => {
+    t.closeConnection();
     console.log('Error:' + error);
   });
 } catch(e) {
   t.closeConnection();
   console.log('Error:' + e);
 }
-  
+
+// try {
+//   t.updateDB('companyinfo', {
+//         'companycode': '1232xx',
+        
+//     }, {
+//       'tianyanchaurl': 'abcd123'
+//     }).then((res)=>{
+//     console.log(res);
+//     t.closeConnection();
+//   }).catch((error) => {
+//     t.closeConnection();
+//     console.log('Error:' + error);
+//   });
+// } catch(e) {
+//   t.closeConnection();
+//   console.log('Error:' + e);
+// }
