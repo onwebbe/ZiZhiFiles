@@ -213,7 +213,7 @@ class MySQLCompanyZiZhi {
 }
 exports.default = MySQLCompanyZiZhi;
 module.exports = exports['default'];
-var t = new MySQLCompanyZiZhi();
+// var t = new MySQLCompanyZiZhi();
 // try {
 //   t.queryDB('companyinfo', {'companycode': '123'}, true).then((res)=>{
 //     console.log(res);
@@ -225,24 +225,24 @@ var t = new MySQLCompanyZiZhi();
 //   t.closeConnection();
 //   console.log('Error:' + e);
 // }
-try {
-  t.insertDB('companyinfo', {
-        'companyid': 111,
-        'companycode': '1232x123x',
-        'companyname': '这是个测试公司2123xx',
-        'companylocation': '上海',
-        'companycategory': ''
-    }, ['companyid'], ['companycode', 'companyname']).then((res)=>{
-    console.log(res);
-    t.closeConnection();
-  }).catch((error) => {
-    t.closeConnection();
-    console.log('Error:' + error);
-  });
-} catch(e) {
-  t.closeConnection();
-  console.log('Error:' + e);
-}
+// try {
+//   t.insertDB('companyinfo', {
+//         'companyid': 111,
+//         'companycode': '1232x123x',
+//         'companyname': '这是个测试公司2123xx',
+//         'companylocation': '上海',
+//         'companycategory': ''
+//     }, ['companyid'], ['companycode', 'companyname']).then((res)=>{
+//     console.log(res);
+//     t.closeConnection();
+//   }).catch((error) => {
+//     t.closeConnection();
+//     console.log('Error:' + error);
+//   });
+// } catch(e) {
+//   t.closeConnection();
+//   console.log('Error:' + e);
+// }
 
 // try {
 //   t.updateDB('companyinfo', {

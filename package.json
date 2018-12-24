@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "^2.6.1",
+    "cheerio": "^1.0.0-rc.2",
     "config": "^3.0.1",
     "fast-csv": "^2.4.1",
     "mongoose": "^5.4.0",
