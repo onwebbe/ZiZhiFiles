@@ -102,8 +102,9 @@ class MySQLCompanyZiZhi {
           }
         }
         queryString += ') values (' + valuesQueryString + ')';
+        console.log(queryString);
         self.connection.query(queryString, queryParams, function (error, results, fields) {
-          if (error) {
+          if (error || !results) {
               let errorMessage = 'insertDB Error:' + error.message;
               self.handleDBError(reject, errorMessage);
           }
@@ -144,7 +145,7 @@ class MySQLCompanyZiZhi {
             i++;
         }
       }
-      
+      console.log(queryString);
       self.connection.query(queryString, queryParams, function (error, results, fields) {
           if (error) {
               let errorMessage = 'queryDB Error:' + error.message + ':' + queryString + ':' + queryParams.join(',');
@@ -200,6 +201,7 @@ class MySQLCompanyZiZhi {
       }
   
       let updateString = 'update ' + tablename + ' ' + setString + queryString;
+      console.log(updateString);
       self.connection.query(updateString, paramters, function (error, results, fields) {
           if (error) {
               let errorMessage = 'updateDB Error:' + error.message;
@@ -213,7 +215,7 @@ class MySQLCompanyZiZhi {
 }
 exports.default = MySQLCompanyZiZhi;
 module.exports = exports['default'];
-// var t = new MySQLCompanyZiZhi();
+var t = new MySQLCompanyZiZhi();
 // try {
 //   t.queryDB('companyinfo', {'companycode': '123'}, true).then((res)=>{
 //     console.log(res);
@@ -246,7 +248,7 @@ module.exports = exports['default'];
 
 // try {
 //   t.updateDB('companyinfo', {
-//         'companycode': '1232xx',
+//         'companyname': '博华建筑规划设计有限公司',
         
 //     }, {
 //       'tianyanchaurl': 'abcd123'
@@ -261,3 +263,4 @@ module.exports = exports['default'];
 //   t.closeConnection();
 //   console.log('Error:' + e);
 // }
+
