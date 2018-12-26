@@ -26,6 +26,7 @@ class MySQLCompanyZiZhi {
     var self = this;
     if (self._activeTransactionTimer == null) {
       this._activeTransactionTimer = setInterval(() => {
+        console.log('ZiZhiDB.closeConnection activeTrx:' + self.activeTransactionCount);
         if (self.activeTransactionCount == 0) {
           self.connection.end();
           self.connection.destroy();
