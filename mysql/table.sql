@@ -80,5 +80,6 @@ SELECT count(*) FROM zizhifiles.companyinfo where tianyanchaurl is null;
 
 select * from companyinfo where tianyancharawdata is null;
 
-select a.companycode, a.companyname, a.companycategory, b.contacttype, b.contactinfo from zizhifiles.companyinfo a, zizhifiles.contactinfo b, zizhifiles.companycontact c where a.companyid = c.companyid and b.contactid = c.contactid and b.contacttype<>'注册城市' order by a.companyid, b.contacttype
+select a.companycode, a.companyname, a.companycategory, b.contacttype, b.contactinfo from zizhifiles.companyinfo a, zizhifiles.contactinfo b, zizhifiles.companycontact c where a.companyid = c.companyid and b.contactid = c.contactid and (b.contacttypeid<>'CITY' and b.contacttypeid<>'DISTRICT') order by a.companyid, b.contacttype;
+
 commit;
