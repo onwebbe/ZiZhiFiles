@@ -1,6 +1,6 @@
 create database if not exists zizhifiles DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 use zizhifiles;
-create table companyinfo(
+create table zizhifiles.companyinfo(
     companyid INTEGER primary key AUTO_INCREMENT,
     companycode varchar(50) not null,
     companyname VARCHAR(300) not null,
@@ -12,7 +12,7 @@ create table companyinfo(
     createddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP,
     updateddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-create table zizhiinfo(
+create table zizhifiles.zizhiinfo(
     zizhiid INTEGER primary key AUTO_INCREMENT,
     zizhiname varchar(180),
     zizhilevel varchar(60),
@@ -20,7 +20,7 @@ create table zizhiinfo(
     createddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP,
     updateddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-create table companyzizhi (
+create table zizhifiles.companyzizhi (
     companyid INTEGER,
     zizhiid INTEGER,
     zizhiapprovedate DATETIME,
@@ -47,8 +47,8 @@ create table zizhifiles.companycontact (
     CONSTRAINT fk_company_in_contact FOREIGN KEY (companyid) REFERENCES `companyinfo`(companyid) ON DELETE CASCADE,
     CONSTRAINT fk_contact FOREIGN KEY (contactid) REFERENCES `contactinfo`(contactid) ON DELETE CASCADE
 );
-
 alter table zizhifiles.companyinfo add processed varchar(5) DEFAULT 0; -- 0 is not processed 1 is processed 2 is company not exists
+
 drop table zizhifiles.companycontact;
 drop table companyzizhi;
 drop table companyinfo;
@@ -57,7 +57,6 @@ drop table zizhifiles.contactinfo;
 
 
 select * from zizhifiles.contactinfo;
-update zizhifiles.companyinfo 
 SELECT * FROM zizhifiles.companyinfo;
 SELECT count(*) FROM zizhifiles.zizhiinfo;
 SELECT count(*) FROM zizhifiles.companyzizhi;
