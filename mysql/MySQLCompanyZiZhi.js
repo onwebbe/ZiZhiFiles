@@ -62,6 +62,27 @@ class MySQLCompanyZiZhi {
     }
     return false;
   }
+  queryComplex(queryString, queryParams) {
+    var self = this;
+    this.startTransaction();
+    if (queryParams == null) {
+      queryParams = [];
+    }
+    return new Promise(async function(resolve, reject) {
+      if (!queryString) {
+        self.handleDBError(reject, 'queryComplex Error: query string is mandatory');
+      }
+      console.log(queryString);
+      self.connection.query(queryString, queryParams, function (error, results, fields) {
+        if (error || !results) {
+            let errorMessage = 'queryComplex Error:' + error.message;
+            self.handleDBError(reject, errorMessage);
+        }
+        self.endTransaction();
+        resolve(results);
+      });
+    });
+  }
   insertDB(tablename, insertData, excludeFields, checkUniqueFields) {
     var self = this;
     this.startTransaction();

@@ -16,6 +16,7 @@
     "cheerio": "^1.0.0-rc.2",
     "config": "^3.0.1",
     "fast-csv": "^2.4.1",
+    "log4js": "^3.0.6",
     "mongoose": "^5.4.0",
     "mysql": "^2.16.0",
     "superagent": "^4.0.0",

@@ -1,28 +1,62 @@
 'use strict';
+const fs = require('fs');
 const csv = require('fast-csv');
 const async = require('async');
 const MySQLCompanyZiZhi = require('./mysql/MySQLCompanyZiZhi');
 var zizhiDB = new MySQLCompanyZiZhi();
 var dataList = [];
-csv
-	.fromPath("/Users/i326432/Documents/上海设计企业资质名录.csv", {headers : ['companycode', 'companyname', 'zizhiname', 'zizhilevel', 'zizhiscope', 'zizhiapprovedate', 'zizhivaliduntildate']})
-	.on("data", function(data){
-        // processCompany(data);
-        // processZizhi(data);
-        dataList.push(data);
-	})
-	.on("end", function(){
-        setTimeout(async function () {
-            // await processCompany(dataList);
-            // await processZizhi(dataList);
-            // await processCompanyZiZhi(dataList);
-            await processContact(dataList);
-        }, 1);
-     console.log("done");
-	});
-function exportCompanyToCSV () {
-    let query = 'select a.companycode, a.companyname, a.companycategory, b.contacttype, b.contactinfo from zizhifiles.companyinfo a, zizhifiles.contactinfo b, zizhifiles.companycontact c where a.companyid = c.companyid and b.contactid = c.contactid order by a.companyid';
-    
+// csv
+// 	.fromPath("/Users/i326432/Documents/上海施工企业资质企业名录.csv", {headers : ['companycode', 'companyname', 'zizhiname', 'zizhilevel', 'zizhiscope', 'zizhiapprovedate', 'zizhivaliduntildate']})
+// 	.on("data", function(data){
+//         // processCompany(data);
+//         // processZizhi(data);
+//         dataList.push(data);
+// 	})
+// 	.on("end", function(){
+//         setTimeout(async function () {
+//             // await processCompany(dataList);
+//             // await processZizhi(dataList);
+//             // await processCompanyZiZhi(dataList);
+//             // await processContact(dataList);
+//         }, 1);
+//      console.log("done");
+// 	});
+exportCompanyToCSV();
+async function exportCompanyToCSV () {
+    let query = 'select a.companycode, a.companyname, a.companycategory, b.contacttype, b.contactinfo from zizhifiles.companyinfo a, zizhifiles.contactinfo b, zizhifiles.companycontact c where a.companyid = c.companyid and b.contactid = c.contactid and b.contacttypeid<>\'CITY\' and b.contacttypeid<>\'DISTRICT\' order by a.companyid, b.contacttype';
+		let companyContactDataList = await zizhiDB.queryComplex(query);
+		var csvStream = csv.createWriteStream({headers: true}),
+		writableStream = fs.createWriteStream('my.csv');
+
+		writableStream.on("finish", function(){
+			console.log("DONE!");
+		});
+		csvStream.pipe(writableStream);
+		let previousCompanyCode = '';
+		for (let i = 0; i < companyContactDataList.length; i++) {
+			let companyContact = companyContactDataList[i];
+			let companycode = companyContact.companycode;
+			let companyname = companyContact.companyname;
+			let companycategory = companyContact.companycategory;
+			if (previousCompanyCode == companycode) {
+				companycode = '';
+				companyname = '';
+				companycategory = '';
+			}
+			previousCompanyCode = companyContact.companycode;
+
+			let companyContactCVSObj = {
+				'公司代号': companycode,
+				'公司名字': companyname,
+				'类型': companycategory,
+				'联系方式类型': companyContact.contacttype,
+				'联系方式': companyContact.contactinfo
+			};
+			// console.log(companyContactCVSObj)
+			
+			csvStream.write(companyContactCVSObj);
+		}
+		csvStream.end();
 }
 async function processContact(dataList) {
     return new Promise(async function(resolve, reject) {

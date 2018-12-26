@@ -33,7 +33,7 @@ create table zizhifiles.companyzizhi (
 );
 create table zizhifiles.contactinfo (
     contactid Integer PRIMARY KEY AUTO_INCREMENT,
-    contacttype varchar(100), /*电话，邮箱，城市，地区，注册地址*/
+    contacttype varchar(100), /*电话，电子邮箱，注册区域，注册城市*/
     contactinfo varchar(2000),
     createddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP,
     updateddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -48,6 +48,13 @@ create table zizhifiles.companycontact (
     CONSTRAINT fk_contact FOREIGN KEY (contactid) REFERENCES `contactinfo`(contactid) ON DELETE CASCADE
 );
 alter table zizhifiles.companyinfo add processed varchar(5) DEFAULT 0; -- 0 is not processed 1 is processed 2 is company not exists
+alter table zizhifiles.contactinfo add contacttypeid varchar(60);
+update zizhifiles.contactinfo set contacttypeid = 'CITY' where contacttype='注册城市';
+update zizhifiles.contactinfo set contacttypeid = 'EMAIL' where contacttype='电子邮箱';
+update zizhifiles.contactinfo set contacttypeid = 'TEL' where contacttype='电话';
+update zizhifiles.contactinfo set contacttypeid = 'DISTRICT' where contacttype='注册区域';
+
+
 
 drop table zizhifiles.companycontact;
 drop table companyzizhi;
@@ -73,4 +80,5 @@ SELECT count(*) FROM zizhifiles.companyinfo where tianyanchaurl is null;
 
 select * from companyinfo where tianyancharawdata is null;
 
+select a.companycode, a.companyname, a.companycategory, b.contacttype, b.contactinfo from zizhifiles.companyinfo a, zizhifiles.contactinfo b, zizhifiles.companycontact c where a.companyid = c.companyid and b.contactid = c.contactid and b.contacttype<>'注册城市' order by a.companyid, b.contacttype
 commit;
