@@ -285,5 +285,5 @@ class ZiZhiUtils {
     }
 }
 var utils = new ZiZhiUtils();
-//utils.importCSVFile('/Users/i326432/Documents/上海设计企业资质名录.csv', '设计企业', '上海', ['companycode', 'companyname', 'zizhiname', 'zizhilevel', 'zizhiscope', 'zizhiapprovedate', 'zizhivaliduntildate']);
-utils.exportCompanyToCSV('my.csv');
+utils.importCSVFile('/Users/i326432/Documents/上海设计企业资质名录.csv', '设计企业', '上海', ['companycode', 'companyname', 'zizhiname', 'zizhilevel', 'zizhiscope', 'zizhiapprovedate', 'zizhivaliduntildate']);
+//utils.exportCompanyToCSV('my.csv');
