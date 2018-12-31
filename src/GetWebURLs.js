@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 const superagent = require('superagent');
 require('superagent-proxy')(superagent);
 const async = require('async');
-const logger = require('Logger');
+const logger = require('./Logger');
 
 class GetWebURLS {
   async getCompanyURL () {

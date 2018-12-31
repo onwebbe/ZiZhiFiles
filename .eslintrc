@@ -1,0 +1,70 @@
+{
+  "env": {
+    "node": true,
+    "es6": true,
+    "mocha": true,
+    "browser": true
+  },
+  "plugins": [
+    "promise",
+    "standard"
+  ],
+  "parser": "babel-eslint",
+  "globals": {
+    "document": false,
+    "navigator": false,
+    "window": false,
+    "jQuery": false,
+    "sap": false,
+    "MSGS": false,
+    "QUnit": false,
+    "MentoringMatchDataModel": false
+  },
+  "extends": [
+    "eslint:recommended",
+    "google"],
+  "rules": {
+    "indent": [ "error", 2 ],
+    "max-len": [1, {
+      "code": 200,
+      "ignoreComments": true,
+      "ignoreTrailingComments": true,
+      "ignoreRegExpLiterals": true
+    }],
+    "comma-dangle": ["error", {
+      "arrays": "never",
+      "objects": "never",
+      "imports": "never",
+      "exports": "never",
+      "functions": "never"
+    }],
+    "no-unused-vars": ["warn", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
+    "no-var": 0,
+    "linebreak-style": 1,
+    "valid-jsdoc": ["error", {"requireReturn": false}],
+    "array-callback-return": "error",
+    "consistent-return": "error",
+    "curly": "error",
+    "default-case": "error",
+    "dot-location": ["error", "object"],
+    "eqeqeq": 0,
+    "no-alert": "error",
+    "no-console": "error",
+    "no-else-return": 1,
+    "no-empty-function": "error",
+    "require-jsdoc": ["error", {
+        "require": {
+            "FunctionDeclaration": true,
+            "MethodDefinition": false,
+            "ClassDeclaration": false,
+            "ArrowFunctionExpression": false
+        }
+    }],
+    "no-trailing-spaces": "error",
+    "spaced-comment": ["error", "always", { "markers": ["!"] }],
+    "space-before-function-paren": 0,
+    "dot-notation": 1,
+    "no-multi-spaces": "error",
+    "prefer-const": "off"
+  }
+}

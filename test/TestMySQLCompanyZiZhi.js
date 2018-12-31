@@ -1,8 +1,18 @@
 const MySQLCompanyZiZhi = require('../src/mysql/MySQLCompanyZiZhi');
 const {assert} = require('chai');
 const sinon = require('sinon');
+const logger = require('../src/Logger.js');
 describe('Test MySQLCompanyZiZhi', function() {
   let zizhiDB = new MySQLCompanyZiZhi();
+  let currentLogLever = null;
+  before(function() {
+    currentLogLever = logger.level;
+    logger.level = 'off';
+  });
+
+  after(function () {
+    logger.level = currentLogLever;
+  });
 
   it('create connection, status flag should be true', function() {
     zizhiDB.createConnection();
