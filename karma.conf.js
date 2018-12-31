@@ -10,18 +10,19 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'requirejs'],
+    frameworks: ['mocha'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      'src/**/*.js',
-      'test/**/*.js'
+      'test/**/*.js',
+      'src/**/*.js'
     ],
 
 
     // list of files / patterns to exclude
     exclude: [
+      'src/*.js'
     ],
 
 
@@ -74,6 +75,14 @@ module.exports = function(config) {
         {type: 'html', dir: 'coverage/'},
         {type: 'text-summary'}
       ],
-    }
+    },
+    plugins: [
+      'karma-chrome-launcher',
+      'karma-chai',
+      'karma-mocha',
+      'karma-coverage',
+      'karma-mocha-reporter',
+      'karma-babel-preprocessor'
+    ]
   })
 }

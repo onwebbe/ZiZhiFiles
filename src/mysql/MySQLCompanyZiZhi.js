@@ -1,7 +1,7 @@
 'use strict';
-const config     = require('config');
-const mysql      = require('mysql');
-const logger     = require('../Logger');
+const config = require('config');
+const mysql = require('mysql');
+const logger = require('../Logger');
 class MySQLCompanyZiZhi {
   constructor() {
     this.isConnected = false;
@@ -12,16 +12,18 @@ class MySQLCompanyZiZhi {
     var self = this;
     logger.debug('MySQLCompanyZiZhi:createConnection:start');
     try {
-      self.connection.end();
-    } catch(e) {
-
+      if (self.connection) {
+        self.connection.end();
+      }
+    } catch (e) {
+      logger.error('MySQLCompanyZiZhi:createConnection:Error ' + e);
     }
     this.connection = mysql.createConnection({
-        host     : config.databaseConfig.host,
-        user     : config.databaseConfig.user,
-        password : config.databaseConfig.password,
-        database : config.databaseConfig.database
-      });
+      host: config.databaseConfig.host,
+      user: config.databaseConfig.user,
+      password: config.databaseConfig.password,
+      database: config.databaseConfig.database
+    });
     this.connection.connect();
     this.isConnected = true;
   }
@@ -82,8 +84,8 @@ class MySQLCompanyZiZhi {
       logger.debug(queryParams);
       self.connection.query(queryString, queryParams, function (error, results, fields) {
         if (error || !results) {
-            let errorMessage = 'MySQLCompanyZiZhi:queryComplex:Error:' + error.message;
-            self.handleDBError(reject, errorMessage);
+          let errorMessage = 'MySQLCompanyZiZhi:queryComplex:Error:' + error.message;
+          self.handleDBError(reject, errorMessage);
         } else {
           self.endTransaction();
           resolve(results);
@@ -97,55 +99,54 @@ class MySQLCompanyZiZhi {
     return new Promise(async function(resolve, reject) {
       if (!tablename) {
         self.handleDBError(reject, 'MySQLCompanyZiZhi:queryDB:Error: table name is mandatory');
-      }
-      if (!insertData) {
+      } else if (!insertData) {
         self.handleDBError(reject, 'MySQLCompanyZiZhi:queryDB:Error: insert data field is mandatory');
-      }
-
-      let checkDuplicateResult = []; // default, no need to check the duplicated data or not
-      if (checkUniqueFields != null && checkUniqueFields.length > 0) {
-        var dupCheckData = {};
-        for (let i = 0; i < checkUniqueFields.length; i++) {
-          let fieldName = checkUniqueFields[i];
-          let fieldValue = insertData[fieldName];
-          dupCheckData[fieldName] = fieldValue;
+      } else {
+        let checkDuplicateResult = []; // default, no need to check the duplicated data or not
+        if (checkUniqueFields != null && checkUniqueFields.length > 0) {
+          var dupCheckData = {};
+          for (let i = 0; i < checkUniqueFields.length; i++) {
+            let fieldName = checkUniqueFields[i];
+            let fieldValue = insertData[fieldName];
+            dupCheckData[fieldName] = fieldValue;
+          }
+          checkDuplicateResult = await self.queryDB(tablename, dupCheckData, false);
         }
-        checkDuplicateResult = await self.queryDB(tablename, dupCheckData, false);
-      }
-      if (checkDuplicateResult.length === 0) {
-        let queryParams = [];
-        let queryString = 'insert into ' + tablename + ' (';
-        let valuesQueryString = '';
-        let i = 0;
-        for (let infofield in insertData) {
-          if (!self._isDataInList(infofield, excludeFields)) { // company id is system generated auto increase field, could not manually assign the value
-            if ( i === 0 ) {
-              queryString += infofield;
-              valuesQueryString += '?';
-            } else {
+        if (checkDuplicateResult.length === 0) {
+          let queryParams = [];
+          let queryString = 'insert into ' + tablename + ' (';
+          let valuesQueryString = '';
+          let i = 0;
+          for (let infofield in insertData) {
+            if (!self._isDataInList(infofield, excludeFields)) { // company id is system generated auto increase field, could not manually assign the value
+              if ( i === 0 ) {
+                queryString += infofield;
+                valuesQueryString += '?';
+              } else {
                 queryString += ',' + infofield;
                 valuesQueryString += ', ?';
+              }
+              queryParams.push(insertData[infofield]);
+              i++;
             }
-            queryParams.push(insertData[infofield]);
-            i++;
           }
-        }
-        queryString += ') values (' + valuesQueryString + ')';
-        logger.debug('MySQLCompanyZiZhi:insertDB:queryString' + queryString);
-        logger.debug(queryParams);
-        self.connection.query(queryString, queryParams, function (error, results, fields) {
-          if (error) {
+          queryString += ') values (' + valuesQueryString + ')';
+          logger.debug('MySQLCompanyZiZhi:insertDB:queryString' + queryString);
+          logger.debug(queryParams);
+          self.connection.query(queryString, queryParams, function (error, results, fields) {
+            if (error) {
               let errorMessage = 'MySQLCompanyZiZhi:insertDB:Error:' + error.message;
               self.handleDBError(reject, errorMessage);
-          } else {
-            insertData['primarykey'] = results.insertId;
-            self.endTransaction();
-            resolve(insertData);
-          }
-        });
-      } else {
-        let errorMessage = 'MySQLCompanyZiZhi:insertDB:Error: duplicated with data:' + JSON.stringify(dupCheckData, null, 2);
-        self.handleDBError(reject, errorMessage);
+            } else {
+              insertData.primarykey = results.insertId;
+              self.endTransaction();
+              resolve(insertData);
+            }
+          });
+        } else {
+          let errorMessage = 'MySQLCompanyZiZhi:insertDB:Error: duplicated with data:' + JSON.stringify(dupCheckData, null, 2);
+          self.handleDBError(reject, errorMessage);
+        }
       }
     });
   }
@@ -155,38 +156,40 @@ class MySQLCompanyZiZhi {
     return new Promise(function(resolve, reject) {
       if (!tablename) {
         self.handleDBError(reject, 'MySQLCompanyZiZhi:queryDB:Error: table name is mandatory');
-      }
-      let queryString = 'SELECT * from ' + tablename + ' ';
-      let queryParams = [];
-      if (queryData != null) {
-        queryString += ' WHERE ';
-        let i = 0;
-        for (let field in queryData) {
-            if ( i === 0 ) {
+      } else {
+        let queryString = 'SELECT * FROM ' + tablename + ' ';
+        let queryParams = [];
+        if (queryData != null) {
+          queryString += ' WHERE ';
+          let i = 0;
+          for (let field in queryData) {
+            if (Object.prototype.hasOwnProperty.call(queryData, field)) {
+              if ( i === 0 ) {
                 queryString += ' ' + field + '= ?';
-            } else {
+              } else {
                 if (isOr) {
-                    queryString += ' OR ' + field + '= ?';
+                  queryString += ' OR ' + field + '= ?';
                 } else {
-                    queryString += ' AND ' + field + '= ?';
+                  queryString += ' AND ' + field + '= ?';
                 }
-                
+              }
+              queryParams.push(queryData[field]);
+              i++;
             }
-            queryParams.push(queryData[field]);
-            i++;
+          }
         }
-      }
-      logger.debug('MySQLCompanyZiZhi:queryDB:queryString:' + queryString);
-      logger.debug(queryParams);
-      self.connection.query(queryString, queryParams, function (error, results, fields) {
+        logger.debug('MySQLCompanyZiZhi:queryDB:queryString:' + queryString);
+        logger.debug(queryParams);
+        self.connection.query(queryString, queryParams, function (error, results, fields) {
           if (error) {
-              let errorMessage = 'MySQLCompanyZiZhi:queryDB:Error:' + error.message + ':' + queryString + ':' + queryParams.join(',');
-              self.handleDBError(reject, errorMessage);
+            let errorMessage = 'MySQLCompanyZiZhi:queryDB:Error:' + error.message + ':' + queryString + ':' + queryParams.join(',');
+            self.handleDBError(reject, errorMessage);
           } else {
             self.endTransaction();
             resolve(results);
           }
-      });
+        });
+      }
     });
   }
 
@@ -202,10 +205,9 @@ class MySQLCompanyZiZhi {
       }
       let paramters = [];
       let setString = ' SET ';
-      let fieldList = [];
-      let valueList = [];
       let i = 0;
       for ( let infofield in updateData) {
+        if (Object.prototype.hasOwnProperty.call(updateData, infofield)) {
           if (!self._isDataInList(infofield, excludeFields)) {
             if ( i === 0 ) {
               setString += ' ' + infofield + '= ?';
@@ -213,43 +215,46 @@ class MySQLCompanyZiZhi {
               setString += ', ' + infofield + '= ?';
             }
             paramters.push(updateData[infofield]);
+            i++;
           }
-          i++;
+        }
       }
       let queryString = ' WHERE ';
       i = 0;
       for (let field in queryData) {
+        if (Object.prototype.hasOwnProperty.call(queryData, field)) {
           if ( i === 0 ) {
-              queryString += ' ' + field + '= ?';
+            queryString += ' ' + field + '= ?';
           } else {
-              if (isOr) {
-                  queryString += ' OR ' + field + '= ?';
-              } else {
-                  queryString += ' AND ' + field + '= ?';
-              }
-              
+            let isOr = false;
+            if (isOr) {
+              queryString += ' OR ' + field + '= ?';
+            } else {
+              queryString += ' AND ' + field + '= ?';
+            }
           }
           paramters.push(queryData[field]);
           i++;
+        }
       }
-  
+
       let updateString = 'update ' + tablename + ' ' + setString + queryString;
       logger.debug('MySQLCompanyZiZhi:updateDB:queryString:' + updateString);
       logger.debug(paramters);
       self.connection.query(updateString, paramters, function (error, results, fields) {
-          if (error) {
-              let errorMessage = 'MySQLCompanyZiZhi:updateDB:Error:' + error.message;
-              self.handleDBError(reject, errorMessage);
-          } else {
-            self.endTransaction();
-            resolve(results);
-          }
+        if (error) {
+          let errorMessage = 'MySQLCompanyZiZhi:updateDB:Error:' + error.message;
+          self.handleDBError(reject, errorMessage);
+        } else {
+          self.endTransaction();
+          resolve(results);
+        }
       });
     });
   }
 }
 exports.default = MySQLCompanyZiZhi;
-module.exports = exports['default'];
+module.exports = exports.default;
 // var t = new MySQLCompanyZiZhi();
 // try {
 //   t.queryDB('companyinfo', {'companycode': '1232x123x'}, true).then((res) => {
@@ -284,7 +289,6 @@ module.exports = exports['default'];
 // try {
 //   t.updateDB('companyinfo', {
 //         'companyname': '博华建筑规划设计有限公司',
-        
 //     }, {
 //       'tianyanchaurl': 'abcd123'
 //     }).then((res)=>{
