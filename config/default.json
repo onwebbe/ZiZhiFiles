@@ -1,9 +1,19 @@
 {
+  "file" : "./xunit.xml",
+  "consoleOutput" : {
+    "suite" : true,
+    "test" : true,
+    "fail" : false
+  },
   "databaseConfig": {
     "host"     : "localhost",
     "user"     : "root",
     "password" : "123456",
     "database" : "zizhifiles"
+  },
+  "emailConfig": {
+    "mochaUnitTestFailEmail": {
+    }
   },
   "loggerConfig": {
     "usage": {

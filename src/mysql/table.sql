@@ -1,5 +1,13 @@
 create database if not exists zizhifiles DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 use zizhifiles;
+create table zizhifiles.configurations(
+    configid INTEGER primary key AUTO_INCREMENT,
+    configcategory varchar(100),
+    configname varchar(100),
+    configvalue varchar(300),
+    createddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP,
+    updateddate TIMESTAMP not null DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 create table zizhifiles.companyinfo(
     companyid INTEGER primary key AUTO_INCREMENT,
     companycode varchar(50) not null,
@@ -55,13 +63,22 @@ update zizhifiles.contactinfo set contacttypeid = 'TEL' where contacttype='电�
 update zizhifiles.contactinfo set contacttypeid = 'DISTRICT' where contacttype='注册区域';
 
 
-
+drop table zizhifiles.configurations;
 drop table zizhifiles.companycontact;
 drop table companyzizhi;
 drop table companyinfo;
 drop table zizhiinfo;
 drop table zizhifiles.contactinfo;
 
+insert into zizhifiles.configurations (configcategory, configname, configvalue) 
+ values('utemail', 'username', 'onwebbe');
+insert into zizhifiles.configurations (configcategory, configname, configvalue) 
+ values('utemail', 'password', 'wth198145');
+insert into zizhifiles.configurations (configcategory, configname, configvalue) 
+ values('utemail', 'server', 'smtp.163.com');
+insert into zizhifiles.configurations (configcategory, configname, configvalue) 
+ values('utemail', 'port', '25');
+SELECT * FROM zizhifiles.configurations  WHERE  configcategory= 'utemail';
 
 select * from zizhifiles.contactinfo;
 SELECT * FROM zizhifiles.companyinfo;

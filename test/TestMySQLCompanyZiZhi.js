@@ -2,6 +2,7 @@ const MySQLCompanyZiZhi = require('../src/mysql/MySQLCompanyZiZhi');
 const {assert} = require('chai');
 const sinon = require('sinon');
 const logger = require('../src/Logger.js');
+
 describe('Test MySQLCompanyZiZhi', function() {
   let zizhiDB = new MySQLCompanyZiZhi();
   let currentLogLever = null;

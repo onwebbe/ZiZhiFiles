@@ -1,23 +1,33 @@
-var gulp = require('gulp');
-var notify = require('gulp-notify');
-var eslint = require('gulp-eslint');
-var mocha = require('gulp-mocha');
+const gulp = require('gulp');
+const notify = require('gulp-notify');
+const eslint = require('gulp-eslint');
+const mocha = require('gulp-mocha');
+const Mailer = require('./src/Mailer');
+const util = require('gulp-util');
+const mailer = new Mailer();
 
-var msgs = '';
-function test() {
-  console.log(arguments);
-}
+var msgs = '-----------------------------\n';
+// const fs = require('fs');
+// fs.writeFileSync('./test.json', '');
+// process.stdout.write = async function( chunk ) {
+//   await fs.appendFile( './test.json', chunk );
+// };
 function processMocha(path) {
   path = __dirname + '/test/**/*.js';
   gulp
     .src(path)
     .pipe(mocha({
-      reporter: 'spec'
+      'reporter': 'xunit',
+      'reporter-options': {
+        output: 'filename.xml'
+      }
     }))
-    .on("error", function(){
+    .on("error", async function(err) {
       var args = Array.prototype.slice.call(arguments);
+      // console.log(console.error);
+      // await mailer.sendEmail('onwebbe@163.com', 'onwebbe@163.com', 'ZiZhiFiles UT Failed', `<%=error.message %>`);
       notify.onError({
-          title: 'esLint error',
+          title: 'Mocha error',
           /*message: '<%=error.message %>'*/
           message: `<%=error.message %>`
       }).apply(this, args);//替换为当前对象
@@ -47,7 +57,6 @@ function processJSESlint(path) {
     .pipe(eslint.failAfterError())
     .on("error", function(){
       var args = Array.prototype.slice.call(arguments);
-
       notify.onError({
           title: 'esLint error',
           /*message: '<%=error.message %>'*/

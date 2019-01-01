@@ -252,12 +252,34 @@ class MySQLCompanyZiZhi {
       });
     });
   }
+  queryConfig(category) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      try {
+        self.queryDB('configurations', {'configcategory': category}, true).then((res) => {
+          let configObj = {};
+          for(let i = 0; i < res.length; i++) {
+            let configItem = res[i];
+            let configName = configItem.configname;
+            let configValue = configItem.configvalue;
+            configObj[configName] = configValue;
+          }
+          resolve(configObj);
+        }).catch((error) => {
+          self.handleDBError(reject, error);
+        });
+      } catch(error) {
+        let errorMessage = 'MySQLCompanyZiZhi:queryConfig:Error:' + error;
+        self.handleDBError(reject, errorMessage);
+      }
+    });
+  }
 }
 exports.default = MySQLCompanyZiZhi;
 module.exports = exports.default;
 // var t = new MySQLCompanyZiZhi();
 // try {
-//   t.queryDB('companyinfo', {'companycode': '1232x123x'}, true).then((res) => {
+//   t.queryDB('configurations', {'configcategory': 'utemail'}, true).then((res) => {
 //     logger.info(res);
 //     t.closeConnection();
 //   }).catch((error) => {
