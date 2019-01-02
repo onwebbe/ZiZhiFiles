@@ -71,9 +71,9 @@ drop table zizhiinfo;
 drop table zizhifiles.contactinfo;
 
 insert into zizhifiles.configurations (configcategory, configname, configvalue) 
- values('utemail', 'username', 'onwebbe');
+ values('utemail', 'username', 'uid');
 insert into zizhifiles.configurations (configcategory, configname, configvalue) 
- values('utemail', 'password', 'wth198145');
+ values('utemail', 'password', 'pwd');
 insert into zizhifiles.configurations (configcategory, configname, configvalue) 
  values('utemail', 'server', 'smtp.163.com');
 insert into zizhifiles.configurations (configcategory, configname, configvalue) 
