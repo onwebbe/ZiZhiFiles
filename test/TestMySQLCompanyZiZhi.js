@@ -19,21 +19,44 @@ describe('Test MySQLCompanyZiZhi', function() {
     logger.level = currentLogLever;
   });
 
+  beforeEach( () => {
+    sinon.stub(zizhiDB.mysql, 'createConnection').callsFake( () => {
+      return {
+        end: function () {
+          
+        },
+        query: function () {
+
+        },
+        connect: function () {
+          
+        }
+      };
+    });
+  });
+
+  afterEach( () => {
+    sinon.restore();
+  });
+
   pickTestMatrix.test1('create connection, status flag should be true', function() {
     zizhiDB.createConnection();
     assert.equal(zizhiDB.isConnected, true);
+    sinon.restore();
   });
 
   pickTestMatrix.test2('when startTransaction, connection should be active and active trasaction count should be 1', function() {
     zizhiDB.startTransaction();
     // assert.equal(zizhiDB.isConnected, true);
     assert.equal(zizhiDB.activeTransactionCount, 1);
+    sinon.restore();
   });
 
   it('when endTransaction after startTransaction, connection should be active and active trasaction count should be 0', function() {
     zizhiDB.endTransaction();
     // assert.equal(zizhiDB.isConnected, true);
     assert.equal(zizhiDB.activeTransactionCount, 0);
+    sinon.restore();
   });
 
   it('Check data in the list', function() {

@@ -4,6 +4,7 @@ const mysql = require('mysql');
 const logger = require('../Logger');
 class MySQLCompanyZiZhi {
   constructor() {
+    this.mysql = mysql;
     this.isConnected = false;
     this.activeTransactionCount = 0;
     // this.createConnection();
