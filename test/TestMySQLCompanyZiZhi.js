@@ -4,6 +4,10 @@ const sinon = require('sinon');
 const logger = require('../src/Logger.js');
 
 describe('Test MySQLCompanyZiZhi', function() {
+  let pickTestMatrix = {
+    'test1': it,
+    'test2': it
+  };
   let zizhiDB = new MySQLCompanyZiZhi();
   let currentLogLever = null;
   before(function() {
@@ -15,12 +19,12 @@ describe('Test MySQLCompanyZiZhi', function() {
     logger.level = currentLogLever;
   });
 
-  it('create connection, status flag should be true', function() {
+  pickTestMatrix.test1('create connection, status flag should be true', function() {
     zizhiDB.createConnection();
     assert.equal(zizhiDB.isConnected, true);
   });
 
-  it('when startTransaction, connection should be active and active trasaction count should be 1', function() {
+  pickTestMatrix.test2('when startTransaction, connection should be active and active trasaction count should be 1', function() {
     zizhiDB.startTransaction();
     // assert.equal(zizhiDB.isConnected, true);
     assert.equal(zizhiDB.activeTransactionCount, 1);

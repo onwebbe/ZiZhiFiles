@@ -258,7 +258,7 @@ class MySQLCompanyZiZhi {
       try {
         self.queryDB('configurations', {'configcategory': category}, true).then((res) => {
           let configObj = {};
-          for(let i = 0; i < res.length; i++) {
+          for (let i = 0; i < res.length; i++) {
             let configItem = res[i];
             let configName = configItem.configname;
             let configValue = configItem.configvalue;
@@ -268,7 +268,7 @@ class MySQLCompanyZiZhi {
         }).catch((error) => {
           self.handleDBError(reject, error);
         });
-      } catch(error) {
+      } catch (error) {
         let errorMessage = 'MySQLCompanyZiZhi:queryConfig:Error:' + error;
         self.handleDBError(reject, errorMessage);
       }
