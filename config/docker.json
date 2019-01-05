@@ -1,0 +1,5 @@
+{
+  "databaseConfig": {
+    "host"     : "host.docker.internal"
+  }
+}

@@ -5,6 +5,9 @@ pipeline {
             args '-p 3000:3000' 
         }
     }
+    environment { 
+        NODE_ENV = 'docker'
+    }
     stages {
         stage('Build') { 
             steps {
