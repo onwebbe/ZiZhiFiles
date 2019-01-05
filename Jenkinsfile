@@ -22,7 +22,7 @@ pipeline {
             echo 'This will always run'  
         }  
         success {  
-            echo 'This will run only if successful'  
+            emailext body: '<b>Build Success</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}', recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']], subject: 'Job done Successfully: Project name -> ${env.JOB_NAME}', to: 'onwebbe@163.com'
         }  
         failure {
             emailext body: '<b>Build Failed</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}', recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']], subject: 'Job Failed: Project name -> ${env.JOB_NAME}', to: 'onwebbe@163.com'
