@@ -17,7 +17,7 @@ pipeline {
         stage('Unit Test') { 
             steps {
                 sh 'docker run --rm -d -p 3406:3306 zizhifiles_test_mysql:1.0'
-                sleep 5
+                sleep 20
                 sh 'npm test'
             }
         }
