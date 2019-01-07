@@ -14,9 +14,16 @@ pipeline {
                 sh 'npm install --update-binary' 
             }
         }
-        stage('Test') { 
+        stage('Unit Test') { 
             steps {
+                sh 'docker run --rm -p -d 3406:3306 zizhifiles_test_mysql'
+                sleep 5
                 sh 'npm test'
+            }
+        }
+        stage('Integration Test') { 
+            steps {
+                sh 'npm integrationtest'
             }
         }
     }

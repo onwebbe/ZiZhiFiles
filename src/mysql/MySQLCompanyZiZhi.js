@@ -23,7 +23,8 @@ class MySQLCompanyZiZhi {
       host: config.databaseConfig.host,
       user: config.databaseConfig.user,
       password: config.databaseConfig.password,
-      database: config.databaseConfig.database
+      database: config.databaseConfig.database,
+      port: config.databaseConfig.port
     });
     this.connection.connect();
     this.isConnected = true;

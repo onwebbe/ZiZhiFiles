@@ -1,5 +1,9 @@
 {
   "databaseConfig": {
-    "host"     : "host.docker.internal"
+    "host"     : "localhost",
+    "user"     : "dockertester",
+    "password" : "123456",
+    "database" : "zizhifilestest",
+    "port": 3406
   }
 }

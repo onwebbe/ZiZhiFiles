@@ -9,7 +9,8 @@
     "host"     : "localhost",
     "user"     : "root",
     "password" : "123456",
-    "database" : "zizhifiles"
+    "database" : "zizhifiles",
+    "port": 3306
   },
   "emailConfig": {
     "mochaUnitTestFailEmail": {

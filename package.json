@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "unittest": "mocha test/TestMySQLCompanyZiZhi.js",
+    "integrationtest": "mocha test/TestIntegration.js"
   },
   "author": "",
   "license": "ISC",

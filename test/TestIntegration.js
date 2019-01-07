@@ -18,27 +18,27 @@ describe('Test MySQLCompanyZiZhi', function() {
   after(function () {
     logger.level = currentLogLever;
   });
-  pickTestMatrix.test1('create connection, status flag should be true', function() {
+  pickTestMatrix.test1('Integration: create connection, status flag should be true', function() {
     zizhiDB.createConnection();
     assert.equal(zizhiDB.isConnected, true);
     sinon.restore();
   });
 
-  pickTestMatrix.test2('when startTransaction, connection should be active and active trasaction count should be 1', function() {
+  pickTestMatrix.test2('Integration: when startTransaction, connection should be active and active trasaction count should be 1', function() {
     zizhiDB.startTransaction();
     // assert.equal(zizhiDB.isConnected, true);
     assert.equal(zizhiDB.activeTransactionCount, 1);
     sinon.restore();
   });
 
-  it('when endTransaction after startTransaction, connection should be active and active trasaction count should be 0', function() {
+  it('Integration: when endTransaction after startTransaction, connection should be active and active trasaction count should be 0', function() {
     zizhiDB.endTransaction();
     // assert.equal(zizhiDB.isConnected, true);
     assert.equal(zizhiDB.activeTransactionCount, 0);
     sinon.restore();
   });
 
-  it('Check data in the list', function() {
+  it('Integration: Check data in the list', function() {
     let list = [];
     list.push('field1');
     list.push('field2');
@@ -49,7 +49,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     assert.isFalse(zizhiDB._isDataInList('field10', list));
   });
 
-  it('when execute queryComplex, could compose a proper query to execute', async function() {
+  it('Integration: when execute queryComplex, could compose a proper query to execute', async function() {
     let query = 'select * from db where userid=? and username<>?';
     let params = ['a', 'b'];
     var stub = sinon.stub(zizhiDB.connection, 'query').callsFake( (queryString, queryParams, callback) => {
@@ -62,7 +62,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     sinon.restore();
   });
 
-  it('when execute queryDB using and, could compose a proper query to execute and returns the db result', async function() {
+  it('Integration: when execute queryDB using and, could compose a proper query to execute and returns the db result', async function() {
     let tablename = 'tablename';
     let queryData = {
       'field1': 'value1',
@@ -80,7 +80,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     sinon.restore();
   });
 
-  it('when execute queryDB using or, could compose a proper query to execute and returns the db result', async function() {
+  it('Integration: when execute queryDB using or, could compose a proper query to execute and returns the db result', async function() {
     let tablename = 'tablename';
     let queryData = {
       'field1': 'value1',
@@ -98,7 +98,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     sinon.restore();
   });
 
-  it('when execute queryDB with no tablename, error will be returned', async function() {
+  it('Integration: when execute queryDB with no tablename, error will be returned', async function() {
     let queryData = {
       'field1': 'value1',
       'field2': 'value2'
@@ -120,7 +120,7 @@ describe('Test MySQLCompanyZiZhi', function() {
   });
 
 
-  it('when execute insertDB, will generate proper query to insert', async function() {
+  it('Integration: when execute insertDB, will generate proper query to insert', async function() {
     let tablename = 'tablename';
     let insertData = {
       'insertfield1': 'insertvalue1',
@@ -148,7 +148,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     sinon.restore();
   });
 
-  it('when execute insertDB, but dedup check get one record', async function() {
+  it('Integration: when execute insertDB, but dedup check get one record', async function() {
     let tablename = 'tablename';
     let insertData = {
       'insertfield1': 'insertvalue1',
@@ -172,7 +172,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     sinon.restore();
   });
 
-  it('when execute updateDB, system will execute update properly', async function() {
+  it('Integration: when execute updateDB, system will execute update properly', async function() {
     let tablename = 'tablename';
     let updateData = {
       'insertfield1': 'insertvalue1',
@@ -202,7 +202,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     sinon.restore();
   });
 
-  it('when execute updateDB no exclude field, system will execute update properly', async function() {
+  it('Integration: when execute updateDB no exclude field, system will execute update properly', async function() {
     let tablename = 'tablename';
     let updateData = {
       'insertfield1': 'insertvalue1',
@@ -232,7 +232,7 @@ describe('Test MySQLCompanyZiZhi', function() {
     sinon.restore();
   });
 
-  it('when close the connection, status flag should be false', function() {
+  it('Integration: when close the connection, status flag should be false', function() {
     zizhiDB.closeConnection();
     assert.equal(zizhiDB.isConnected, false);
   });
