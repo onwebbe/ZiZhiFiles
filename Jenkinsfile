@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Unit Test') { 
             steps {
-                sh 'docker run --rm -d -p 3406:3306 zizhifiles_test_mysql:1.0'
+                sh 'docker run --rm -d -p 3406:3306 --name zizhifiles_test_mysql zizhifiles_test_mysql:1.0'
                 sleep 20
                 sh 'npm test'
             }
@@ -29,7 +29,8 @@ pipeline {
     }
     post {  
         always {  
-            echo 'This will always run'  
+            sh 'docker container stop zizhifiles_test_mysql'
+            echo 'docker zizhifiles_test_mysql stopped'  
         }  
         success {  
             echo 'success'
