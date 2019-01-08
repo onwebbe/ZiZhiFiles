@@ -24,7 +24,7 @@ pipeline {
                 sh 'docker run --rm -d -p 3406:3306 --name zizhifiles_test_mysql zizhifiles_test_mysql:1.0'
                 sleep 20
                 sh 'npm run integrationtest'
-                sh 'docker container stop zizhifiles_test_mysql | exit'
+                sh 'docker container stop zizhifiles_test_mysql > /dev/null'
             }
         }
     }
