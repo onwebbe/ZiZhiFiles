@@ -16,20 +16,20 @@ pipeline {
         }
         stage('Unit Test') { 
             steps {
-                sh 'docker run --rm -d -p 3406:3306 --name zizhifiles_test_mysql zizhifiles_test_mysql:1.0'
-                sleep 20
-                sh 'npm test'
+                sh 'npm run unittest'
             }
         }
         stage('Integration Test') { 
             steps {
-                sh 'npm integrationtest'
+                sh 'docker run --rm -d -p 3406:3306 --name zizhifiles_test_mysql zizhifiles_test_mysql:1.0'
+                sleep 20
+                sh 'npm run integrationtest'
+                sh 'docker container stop zizhifiles_test_mysql | exit'
             }
         }
     }
     post {  
         always {  
-            sh 'docker container stop zizhifiles_test_mysql'
             echo 'docker zizhifiles_test_mysql stopped'  
         }  
         success {  
