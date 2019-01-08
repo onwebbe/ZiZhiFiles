@@ -22,7 +22,7 @@ pipeline {
         stage('Integration Test') { 
             steps {
                 sh 'docker run --rm -d -p 3406:3306 --name zizhifiles_test_mysql zizhifiles_test_mysql:1.0'
-                sleep 5
+                sleep 8
                 sh 'npm run integrationtest'
                 sh 'docker container stop zizhifiles_test_mysql > /dev/null'
             }
